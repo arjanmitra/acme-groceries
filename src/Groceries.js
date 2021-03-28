@@ -3,38 +3,43 @@ import axios from 'axios';
 
 import { connect } from 'react-redux';
 
-const _Groceries = ({ groceries, view, toggle, create })=> {
+import { toggleDataThunk, createRandomGroceryThunk } from './store';
+
+const _Groceries = ({ groceries, view, toggle, create }) => {
   return (
     <div>
-      <button onClick={ create }>Create</button>
+      <button onClick={create}>Create</button>
       <ul>
-        {
-          groceries.filter(grocery => !view || ( grocery.purchased && view === 'purchased') ||( !grocery.purchased && view === 'needs') ).map( grocery => {
+        {groceries
+          .filter(
+            (grocery) =>
+              !view ||
+              (grocery.purchased && view === 'purchased') ||
+              (!grocery.purchased && view === 'needs')
+          )
+          .map((grocery) => {
             return (
-              <li onClick={ ()=> toggle(grocery)} key={ grocery.id } className={ grocery.purchased ? 'purchased': ''}>{ grocery.name }</li>
+              <li
+                onClick={() => toggle(grocery)}
+                key={grocery.id}
+                className={grocery.purchased ? 'purchased' : ''}
+              >
+                {grocery.name}
+              </li>
             );
-          })
-        }
+          })}
       </ul>
     </div>
   );
 };
 
-const mapDispatchToProps = (dispatch)=> {
+const mapDispatchToProps = (dispatch) => {
   return {
-    toggle: async(grocery)=>{
-      const updated = (await axios.put(`/api/groceries/${grocery.id}`, { purchased: !grocery.purchased })).data;
-      dispatch({ type: 'UPDATE', grocery: updated});
-
-    }, 
-    create: async()=>{
-      const grocery = (await axios.post('/api/groceries/random')).data;
-      dispatch({ type: 'CREATE', grocery });
-
-    } 
+    toggle: (grocery) => dispatch(toggleDataThunk(grocery)),
+    create: () => dispatch(createRandomGroceryThunk()),
   };
 };
 
-const Groceries = connect(state => state, mapDispatchToProps)(_Groceries);
+const Groceries = connect((state) => state, mapDispatchToProps)(_Groceries);
 
 export default Groceries;

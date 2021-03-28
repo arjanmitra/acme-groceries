@@ -7,17 +7,17 @@ import store from './store';
 import Groceries from './Groceries';
 import CreateForm from './CreateForm';
 
+import { loadDataThunk, setView } from './store';
 
-
-class _App extends Component{
-  componentDidMount(){
+class _App extends Component {
+  componentDidMount() {
     this.props.bootstrap();
-    window.addEventListener('hashchange', ()=> {
+    window.addEventListener('hashchange', () => {
       this.props.setView(window.location.hash.slice(1));
-    })
+    });
     this.props.setView(window.location.hash.slice(1));
   }
-  render(){
+  render() {
     const { groceries, view } = this.props;
     return (
       <div>
@@ -31,20 +31,18 @@ class _App extends Component{
 }
 
 const App = connect(
-  state => state,
-  (dispatch)=> {
+  (state) => state,
+  (dispatch) => {
     return {
-      setView: (view)=> dispatch({ type: 'SET_VIEW', view }), 
-      bootstrap: async()=> {
-        const groceries = (await axios.get('/api/groceries')).data;
-        dispatch({
-          type: 'LOAD',
-          groceries
-        })
-      } 
-    }
+      setView: (view) => dispatch(setView(view)),
+      bootstrap: () => dispatch(loadDataThunk()),
+    };
   }
 )(_App);
 
-
-render(<Provider store={ store }><App /></Provider>, document.querySelector('#root'));
+render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.querySelector('#root')
+);
